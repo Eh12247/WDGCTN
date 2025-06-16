@@ -2,4 +2,4 @@ PaperCode for "A novel PM2.5 forecasting model using wind-conditioned dynamic gr
 
 PaperData: adj_matrices.npy;air quality.zip;meteorology.zip.
 
-Run GCN.run.py and TimesNet.run.py.
+Run GCN.run.py and use the embedding results as the input for TimesNet.run.py.
