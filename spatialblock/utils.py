@@ -33,17 +33,17 @@ def load_node_features_with_normalization(folder_path):
 
         data_frames.append(df)
 
-    # 确保时间戳一致
+    
     timestamps = data_frames[0].index.tolist()
     for df in data_frames:
-        assert df.index.tolist() == timestamps, "时间戳不一致！"
+        assert df.index.tolist() == timestamps, 
 
 
     node_features = np.stack([df.values for df in data_frames], axis=1)
 
 
-    mean = node_features.mean(axis=(0, 1))  # [F]
-    std = node_features.std(axis=(0, 1))  # [F]
+    mean = node_features.mean(axis=(0, 1))  
+    std = node_features.std(axis=(0, 1))  
 
 
     std[std == 0] = 1.0
@@ -126,7 +126,7 @@ def train_autoencoder(model, dataset, device, epochs=10, lr=1e-3, batch_size=32)
 
 
         for batch_data in tqdm(dataloader, desc=f"Training Epoch {epoch + 1}"):
-            batch_data = batch_data.to(device)  # 将数据加载到 GPU
+            batch_data = batch_data.to(device)  
 
 
             batch_loss = 0
@@ -134,9 +134,9 @@ def train_autoencoder(model, dataset, device, epochs=10, lr=1e-3, batch_size=32)
 
             for data in batch_data.to_data_list():
                 x = data.x  # 节点特征 [N, F]
-                edge_index = data.edge_index  # 边索引 [2, E]
-                edge_attr = data.edge_attr  # 边权重 [E]
-                full_adj = data.full_adj  # 稠密邻接矩阵 [N, N]
+                edge_index = data.edge_index  
+                edge_attr = data.edge_attr  
+                full_adj = data.full_adj  
 
 
                 A_hat, Z = model(x, edge_index, edge_weight=edge_attr)
@@ -165,15 +165,14 @@ def export_embeddings_per_node(model, dataset, device, save_folder="GCN_embeddin
 
     import shutil
 
-    # 确保保存文件夹存在并清空
     if os.path.exists(save_folder):
-        shutil.rmtree(save_folder)  # 删除旧文件
+        shutil.rmtree(save_folder)  
     os.makedirs(save_folder, exist_ok=True)
 
     model = model.to(device)
     model.eval()
 
-    total_time_steps = len(dataset)  # 时间步总数
+    total_time_steps = len(dataset)  
     print(f"Total time steps: {total_time_steps}")
 
     for t in range(total_time_steps):
@@ -183,15 +182,15 @@ def export_embeddings_per_node(model, dataset, device, save_folder="GCN_embeddin
         edge_attr = data_t.edge_attr
 
         with torch.no_grad():
-            Z_t = model.encoder(x, edge_index, edge_weight=edge_attr)  # 节点嵌入
+            Z_t = model.encoder(x, edge_index, edge_weight=edge_attr)  
 
         Z_t_np = Z_t.cpu().numpy()
 
-        # 按节点保存到文件
+        
         for i in range(Z_t_np.shape[0]):
             out_file = os.path.join(save_folder, get_output_filename(f"node_{i}.csv"))
 
-            # 写入嵌入，使用追加模式
+            
             with open(out_file, "a") as f:
                 row_str = ",".join([f"{val:.6f}" for val in Z_t_np[i]]) + "\n"
                 f.write(row_str)
